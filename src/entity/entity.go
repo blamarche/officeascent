@@ -15,7 +15,6 @@ import (
 const (
     KIND_PLAYER = iota   
     KIND_MONSTER
-    KIND_ITEM 
 )
 
 
@@ -59,7 +58,6 @@ func (e *Entity) MoveDown() bool {
     e.Clear()
     e.y++
     e.Display()
-    
     return true
 }
 

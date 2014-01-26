@@ -4,13 +4,14 @@ package main
 import (
     "github.com/blamarche/ansiterm"
     "github.com/blamarche/Go-Term/term"
-    "fmt"
+    
+	"fmt"
     "os"
     "syscall"
     "unsafe"
-    //"time"
-    
+        
     "./entity"
+	"./item"
 )
 
 
@@ -39,12 +40,23 @@ func main() {
     //config world and player here    
     player = entity.NewEntityXY(10,10,"X", 10, entity.KIND_PLAYER)
     
+	fmt.Println(item.ItemList)
+	
     //game turn loop
     for {
-        tick_count++
+        tick_count++       
         
-        ansiterm.MoveToXY(0,0)
-        input = getKeypress()
+		//draw screen	
+        ansiterm.MoveToXY(0,2)
+        fmt.Printf("Tick: %d", tick_count)
+        
+        ansiterm.MoveToXY(0,4)
+        fmt.Printf("w/h: %d, %d", wx, wy)
+		
+		ansiterm.MoveToXY(0,0)
+		
+		//wait for input
+		input = getKeypress()
         
         if input!="" {
             if doInput(input) {
@@ -52,11 +64,7 @@ func main() {
             }
         }
         
-        ansiterm.MoveToXY(0,2)
-        fmt.Printf("Tick: %d", tick_count)
         
-        ansiterm.MoveToXY(0,4)
-        fmt.Printf("w/h: %d, %d", wx, wy)
     }	
 }
 
