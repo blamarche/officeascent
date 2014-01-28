@@ -9,9 +9,13 @@ import (
     "os"
     "syscall"
     "unsafe"
-        
-    "./entity"
-	"./item"
+    "math/rand"
+    "time"
+
+    "./player"
+	//"./item"
+    "./world"
+    //"./utils"
 )
 
 
@@ -20,7 +24,10 @@ var (
 	license = "GPLv2 - See LICENSE file for details"
 	tick_count int
 	
-	player *entity.Entity
+    worldmap *world.Map
+    
+	p1 *player.Player
+    message string = "Welcome, office adventurer!"
 	
 	wx = 64 //screen width
 	wy = 24 //screen height
@@ -29,6 +36,8 @@ var (
 
 // MAIN FUNCTION
 func main() {
+    rand.Seed( time.Now().UTC().UnixNano())
+
     input := ""
     initTerm()
     
@@ -38,24 +47,35 @@ func main() {
     defer ansiterm.ClearPage()
 
     //config world and player here    
-    player = entity.NewEntityXY(10,10,"X", 10, entity.KIND_PLAYER)
+    worldmap = world.NewMap(150, 150, 1) //width, height, floor
+    p1 = player.NewPlayerXY(140,140,"@", 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)	
     
-	fmt.Println(item.ItemList)
+	//fmt.Println(item.ItemList[0].Use_desc)
 	
     //game turn loop
     for {
         tick_count++       
         
-		//draw screen	
-        ansiterm.MoveToXY(0,2)
-        fmt.Printf("Tick: %d", tick_count)
+		//draw screen
+        ansiterm.SetFGColor(7)
+        ansiterm.SetBGColor(0)
+        ansiterm.ClearPage()       
         
-        ansiterm.MoveToXY(0,4)
-        fmt.Printf("w/h: %d, %d", wx, wy)
+        ansiterm.MoveToXY(0, wy-1)
+        fmt.Printf("Turn: %d | HP: %d/%d | Amb/Chr/Spr/Grd: %d/%d/%d/%d", tick_count, p1.Hp, p1.Max_hp, p1.Ambition, p1.Charm, p1.Spirit, p1.Greed)
+        
+        ansiterm.MoveToXY(0, wy)
+        fmt.Printf("ITEM / ARMOR / STATUS / DEBUG x/y: %d, %d", p1.X, p1.Y)
 		
 		ansiterm.MoveToXY(0,0)
-		
+        fmt.Printf("%s ", message)
+        
+        worldmap.Display(p1.X, p1.Y, wx, wy)
+        
+        p1.Display(wx,wy)
+
 		//wait for input
+        ansiterm.MoveToXY(0,0)
 		input = getKeypress()
         
         if input!="" {
@@ -69,39 +89,20 @@ func main() {
 }
 
 
-// CHANNELS 
-func inputChannel(in chan string) {
-    for {
-        s:=getKeypress()
-        in <- s
-    }
-}
-
-
 // FUNCTIONS
 func doInput(input string) bool {
-    if input=="q" {
+    if input=="Q" {
         return true
     } else {        
-        cx, cy := player.GetXY()
-
         switch input {
             case "ESC:A":
-                if cy>1 {
-                    player.MoveUp()
-                }
+                p1.MoveUp()
             case "ESC:B":
-                if cy<wy {
-                    player.MoveDown()
-                }
+                p1.MoveDown()
             case "ESC:C":
-                if cx<wx {
-                   player.MoveRight()
-                }
+                p1.MoveRight()
             case "ESC:D":
-                if cx>1 {
-                    player.MoveLeft()
-                }
+                p1.MoveLeft()                
             default:
                 fmt.Printf("You pressed: %s\n", input)
         }            
@@ -136,7 +137,6 @@ func initTerm() {
 	term.KeyPress()
     ansiterm.HideCursor()
     ansiterm.ClearPage()
-    //ansiterm.SetFGColor(5)
 }
 
 

@@ -5,7 +5,7 @@
 */
 package item
 
-
+ 
 import (
 
 )
@@ -26,14 +26,14 @@ const (
 
 
 type Item struct {
-    name string
-	use_desc string
-    rune string
-	floor_min int
-	floor_max int
-	fgcolor int
-    kind int //type of item (weapon, potion, collectible, etc)
-	subkind int //subtype of item
+    Name string
+	Use_desc string
+    Rune string
+	Floor_min int
+	Floor_max int
+	Fgcolor int
+    Kind int //type of item (weapon, potion, collectible, etc)
+	Subkind int //subtype of item
 }
 
 
