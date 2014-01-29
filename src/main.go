@@ -7,15 +7,13 @@ import (
     
 	"fmt"
     "os"
-    "syscall"
-    "unsafe"
     "math/rand"
     "time"
 
     "./player"
 	//"./item"
     "./world"
-    //"./utils"
+    "./utils"
 )
 
 
@@ -27,7 +25,6 @@ var (
     worldmap *world.Map
     
 	p1 *player.Player
-    message string = "Welcome, office adventurer!"
 	
 	wx = 64 //screen width
 	wy = 24 //screen height
@@ -48,7 +45,7 @@ func main() {
 
     //config world and player here    
     worldmap = world.NewMap(150, 150, 1) //width, height, floor
-    p1 = player.NewPlayerXY(140,140,"@", 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)	
+    p1 = player.NewPlayerXY(140,140, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)	
     
 	//fmt.Println(item.ItemList[0].Use_desc)
 	
@@ -68,7 +65,7 @@ func main() {
         fmt.Printf("ITEM / ARMOR / STATUS / DEBUG x/y: %d, %d", p1.X, p1.Y)
 		
 		ansiterm.MoveToXY(0,0)
-        fmt.Printf("%s ", message)
+        fmt.Printf("%s ", utils.GetMessage())
         
         worldmap.Display(p1.X, p1.Y, wx, wy)
         
@@ -124,31 +121,19 @@ func getKeypress() string {
 }
 
 func initTerm() {
-    ws := GetWinSize()
-    wy = int(ws.ws_row)
-    wx = int(ws.ws_col)
+    ws := utils.GetWinSize()
+    wy = int(ws[0])//rows
+    wx = int(ws[1])//cols
     
     if wx<64 || wy<24 {
         fmt.Printf("%d, %d", wx, wy)
         panic("Your terminal is not big enough! (64x24)")
     }
     
+    wx = wx/2*2 //dont count odd width 
+    
     term.Echo(false)
 	term.KeyPress()
     ansiterm.HideCursor()
     ansiterm.ClearPage()
 }
-
-
-//gets size of terminal TODO: move to util module
-const TIOCGWINSZ = 0x5413
-type winsize struct {
-    ws_row, ws_col uint16
-    ws_xpixel, ws_ypixel uint16
-}
-
-func GetWinSize() winsize {
-    ws := winsize{}
-    syscall.Syscall(syscall.SYS_IOCTL, uintptr(0), uintptr(TIOCGWINSZ), uintptr(unsafe.Pointer(&ws)))
-    return ws
-} 

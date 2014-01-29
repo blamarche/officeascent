@@ -10,12 +10,12 @@ import (
     "github.com/blamarche/ansiterm"
     "math/rand"
     "fmt"
+    
+    "../utils"    
 )
 
-var wallRune string = "#"
-
 type Map struct {
-    Walls [][]int    
+    Walls [][]int   //[y][x] or [row][col]
     //Monsters
     //Items
     //Doors
@@ -25,15 +25,15 @@ type Map struct {
 //generate a new floor
 func NewMap(width, height, floor int) *Map {
     m := Map{}    
-    m.Walls = make([][]int, width)
+    m.Walls = make([][]int, height)
     
     for i := range m.Walls {
-        m.Walls[i] = make([]int, height)
+        m.Walls[i] = make([]int, width)
     }
     
     for x := 0; x < width; x++ {
         for y := 0; y < height; y++ {
-            m.Walls[x][y] = 0
+            m.Walls[y][x] = 0
         }
     }
     
@@ -45,27 +45,32 @@ func NewMap(width, height, floor int) *Map {
 func (m *Map) GenerateWalls() {
     for x := 0; x < len(m.Walls); x++ {
         for y := 0; y < len(m.Walls[x]); y++ {
-            m.Walls[x][y] = rand.Intn(2)
+            m.Walls[y][x] = rand.Intn(2)
         }
     }
 }
 
 func (m *Map) Display(px, py, wx, wy int) {
-    //TODO: build whole lines then display, need to reverse x/y indices, woops    
-    for x := px-wx/2; x < px+wx/2; x++ {
-        if x>=0 && x<len(m.Walls) {        
-            for y := py-wy/2; y < py+wy/2; y++ {
-                if y>=0 && y<len(m.Walls[x]) && m.Walls[x][y]!=0 {
-                    ansiterm.SetFGColor(4)
-                    dx := wx/2+x-px
-                    dy := wy/2+y-py        
-                    if dy>1 && dy<wy-1 {
-                        ansiterm.MoveToXY(dx,dy)
-                        fmt.Print(wallRune)
-                    }
+    for y := py-wy/2; y < py+wy/2; y++ {
+        if y>=0 && y<len(m.Walls) {    
+            
+            var line string = ""
+            
+            for x := px-wx/2+1; x < px+wx/2+1; x++ {
+                if x>=0 && x<len(m.Walls[y]) && m.Walls[y][x]!=0 {
+                    line += utils.RUNE_WALL                    
+                } else {
+                    line += utils.RUNE_FLOOR
                 }
             }
-        }        
+            
+            dy := wy/2+y-py
+            if dy>1 && dy<wy-1 {
+                ansiterm.SetFGColor(utils.COLOR_WALL)
+                ansiterm.MoveToXY(0,dy)
+                fmt.Print(line)
+            }
+        }
     }
 }
 

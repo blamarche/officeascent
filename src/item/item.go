@@ -5,7 +5,7 @@
 */
 package item
 
- 
+
 import (
 
 )
@@ -38,7 +38,6 @@ type Item struct {
 
 
 //Item runes will be lowercase, enemies uppercase.
-//ItemList := map[string]Item{
 var ItemList []Item = []Item{
 	Item{
 		"executive report",

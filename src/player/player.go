@@ -9,6 +9,8 @@ package player
 import (
     "github.com/blamarche/ansiterm"
     "fmt"
+    
+    "../utils"
 )
 
 
@@ -27,7 +29,6 @@ const (
 type Player struct {
     X int
     Y int
-    Rune string
     
 	Hp int
 	Max_hp int
@@ -41,12 +42,12 @@ type Player struct {
     State int
 }
 
-func NewPlayer(rune string, hp int, max_hp int, amb int, charm int, spirit int, greed int, class int) *Player {
-    return NewPlayerXY(0,0,rune, hp, max_hp, amb, charm, spirit, greed, class)
+func NewPlayer(hp int, max_hp int, amb int, charm int, spirit int, greed int, class int) *Player {
+    return NewPlayerXY(0,0, hp, max_hp, amb, charm, spirit, greed, class)
 }
 
-func NewPlayerXY(x int, y int, rune string, hp int, max_hp int, amb int, charm int, spirit int, greed int, class int) *Player {
-    var e Player = Player{x, y, rune, hp, max_hp, amb, charm, spirit, greed, class,0}
+func NewPlayerXY(x int, y int, hp int, max_hp int, amb int, charm int, spirit int, greed int, class int) *Player {
+    var e Player = Player{x, y,  hp, max_hp, amb, charm, spirit, greed, class,0}
     return &e
 }
 
@@ -80,17 +81,9 @@ func (e *Player) MoveRight() bool {
     return true
 }
 
-//handle show/hide of entity
-/*
-func (e *Player) Clear() {
-    ansiterm.MoveToXY(e.X,e.Y)
-    fmt.Print(" ") //eventually will lookup floor tile type below the entity instead of blank space    
-}
-*/
-
 func (e *Player) Display(wx, wy int) {
-    ansiterm.SetFGColor(2)
+    ansiterm.SetFGColor(utils.COLOR_PLAYER)
     ansiterm.MoveToXY(wx/2,wy/2)
-    fmt.Print(e.Rune)
+    fmt.Print(utils.RUNE_PLAYER)
 }
 
