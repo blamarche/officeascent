@@ -22,6 +22,8 @@ type Map struct {
     //Other
 }
 
+var CurrentMap *Map
+
 //generate a new floor
 func NewMap(width, height, floor int) *Map {
     m := Map{}    
@@ -39,15 +41,34 @@ func NewMap(width, height, floor int) *Map {
     
     m.GenerateWalls()
     
+    CurrentMap = &m
     return &m
 }
 
 func (m *Map) GenerateWalls() {
-    for x := 0; x < len(m.Walls); x++ {
-        for y := 0; y < len(m.Walls[x]); y++ {
-            m.Walls[y][x] = rand.Intn(2)
+    for y := 0; y < len(m.Walls); y++ {
+        for x := 0; x < len(m.Walls[y]); x++ {
+            if x==0 || x==len(m.Walls[y])-1 || y==0 || y==len(m.Walls)-1 {
+                m.Walls[y][x] = 1
+            } else {
+                if rand.Intn(4)==1 {
+                    m.Walls[y][x] = 1
+                } else {
+                    m.Walls[y][x] = 0
+                }
+            }
         }
     }
+    
+}
+
+func (m *Map) IsBlocked(x, y int) bool {
+    if y>=0 && y<len(m.Walls) {
+        if x>=0 && x<len(m.Walls[y]) {
+            return m.Walls[y][x]==1
+        }
+    }
+    return false
 }
 
 func (m *Map) Display(px, py, wx, wy int) {

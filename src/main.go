@@ -44,8 +44,8 @@ func main() {
     defer ansiterm.ClearPage()
 
     //config world and player here    
-    worldmap = world.NewMap(150, 150, 1) //width, height, floor
-    p1 = player.NewPlayerXY(140,140, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)	
+    worldmap = world.NewMap(100, 60, 1) //width, height, floor
+    p1 = player.NewPlayerXY(50,30, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)	
     
 	//fmt.Println(item.ItemList[0].Use_desc)
 	
@@ -64,13 +64,15 @@ func main() {
         ansiterm.MoveToXY(0, wy)
         fmt.Printf("ITEM / ARMOR / STATUS / DEBUG x/y: %d, %d", p1.X, p1.Y)
 		
-		ansiterm.MoveToXY(0,0)
-        fmt.Printf("%s ", utils.GetMessage())
-        
         worldmap.Display(p1.X, p1.Y, wx, wy)
         
         p1.Display(wx,wy)
 
+        ansiterm.SetFGColor(7)
+		ansiterm.MoveToXY(0,0)
+        fmt.Printf("%s ", utils.GetMessage())
+        
+        
 		//wait for input
         ansiterm.MoveToXY(0,0)
 		input = getKeypress()
@@ -92,14 +94,22 @@ func doInput(input string) bool {
         return true
     } else {        
         switch input {
-            case "ESC:A":
+            case "ESC:A", "8", "k":
                 p1.MoveUp()
-            case "ESC:B":
+            case "ESC:B", "2", "j":
                 p1.MoveDown()
-            case "ESC:C":
+            case "ESC:C", "6", "l":
                 p1.MoveRight()
-            case "ESC:D":
-                p1.MoveLeft()                
+            case "ESC:D", "4", "h":
+                p1.MoveLeft() 
+            case "7", "y": 
+                p1.MoveUpLeft()
+            case "9", "u": 
+                p1.MoveUpRight()
+            case "1", "b": 
+                p1.MoveDownLeft()
+            case "3", "n": 
+                p1.MoveDownRight()
             default:
                 fmt.Printf("You pressed: %s\n", input)
         }            

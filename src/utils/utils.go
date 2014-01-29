@@ -18,7 +18,7 @@ import (
 //ansi colors for game runes
 const (
 	COLOR_PLAYER = 2
-	COLOR_WALL = 4
+	COLOR_WALL = 5
 )
 
 //runes

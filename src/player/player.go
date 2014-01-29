@@ -11,6 +11,7 @@ import (
     "fmt"
     
     "../utils"
+    "../world"
 )
 
 
@@ -42,6 +43,9 @@ type Player struct {
     State int
 }
 
+
+//NEW
+//***
 func NewPlayer(hp int, max_hp int, amb int, charm int, spirit int, greed int, class int) *Player {
     return NewPlayerXY(0,0, hp, max_hp, amb, charm, spirit, greed, class)
 }
@@ -51,36 +55,103 @@ func NewPlayerXY(x int, y int, hp int, max_hp int, amb int, charm int, spirit in
     return &e
 }
 
+
+//POSITION
+//********
 func (e *Player) GetXY() (int,int) {
     return e.X, e.Y
 }
 
+//currently ignores IsBlocked state
 func (e *Player) SetXY(x,y int) {
     e.X=x
     e.Y=y
 }
 
-//these will eventually return whether movement was sucessful
+//MOVEMENT
+//********
 func (e *Player) MoveUp() bool {
     e.Y--
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.Y++
+        return false
+    }
+    return true
+}
+
+func (e *Player) MoveUpLeft() bool {
+    e.Y--
+    e.X--
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.Y++
+        e.X++
+        return false
+    }
+    return true
+}
+
+func (e *Player) MoveUpRight() bool {
+    e.Y--
+    e.X++
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.Y++
+        e.X--
+        return false
+    }
+    return true
+}
+
+func (e *Player) MoveDownLeft() bool {
+    e.Y++
+    e.X--
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.Y--
+        e.X++
+        return false
+    }
+    return true
+}
+
+func (e *Player) MoveDownRight() bool {
+    e.Y++
+    e.X++
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.Y--
+        e.X--
+        return false
+    }
     return true
 }
 
 func (e *Player) MoveDown() bool {
     e.Y++
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.Y--
+        return false
+    }
     return true
 }
 
 func (e *Player) MoveLeft() bool {
     e.X--
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.X++
+        return false
+    }
     return true 
 }
 
 func (e *Player) MoveRight() bool {
     e.X++
+    if (world.CurrentMap.IsBlocked(e.X, e.Y)) {
+        e.X--
+        return false
+    }
     return true
 }
 
+//DISPLAY 
+//*******
 func (e *Player) Display(wx, wy int) {
     ansiterm.SetFGColor(utils.COLOR_PLAYER)
     ansiterm.MoveToXY(wx/2,wy/2)
