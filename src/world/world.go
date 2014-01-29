@@ -12,16 +12,23 @@ import (
     "fmt"
     
     "../item"
-    "../utils"    
+    "../constants"  
 )
 
-//TODO: optimize into single array of a MapTile struct
-type Map struct {  //[y][x] or [row][col]
-    Walls [][]int  
-    //Enemies
-    Items [][]*item.Item
-    //Doors
+type MapTile struct {
+    Wall int
+    Item *item.Item
+    //Enemy
+    //Door
     //Other
+}
+
+type Map struct {  //[y][x] or [row][col]
+    Tiles [][]*MapTile
+    Floor int
+    Width int
+    Height int
+    GameState int
 }
 
 var CurrentMap *Map
@@ -31,59 +38,62 @@ var CurrentMap *Map
 //********
 func NewMap(width, height, floor int) *Map {
     m := Map{}    
-    m.Walls = make([][]int, height)
-    m.Items = make([][]*item.Item, height)
+
+    m.Floor = floor 
+    m.Width = width 
+    m.Height = height 
     
-    for i := range m.Walls {
-        m.Walls[i] = make([]int, width)
-        m.Items[i] = make([]*item.Item, width)
+    m.Tiles = make([][]*MapTile, height)
+    
+    for i := range m.Tiles {
+        m.Tiles[i] = make([]*MapTile, width)
     }
     
     for x := 0; x < width; x++ {
         for y := 0; y < height; y++ {
-            m.Walls[y][x] = 0
-            m.Items[y][x] = nil
+            m.Tiles[y][x] = &MapTile{}
+            m.Tiles[y][x].Wall = 0
+            m.Tiles[y][x].Item = nil
         }
     }
     
-    m.GenerateWalls(floor)
-    m.GenerateItems(floor)
+    m.GenerateWalls()
+    m.GenerateItems()
     
     CurrentMap = &m
     return &m
 }
 
-func (m *Map) GenerateWalls(floor int) {
-    _=floor
-    for y := 0; y < len(m.Walls); y++ {
-        for x := 0; x < len(m.Walls[y]); x++ {
-            if x==0 || x==len(m.Walls[y])-1 || y==0 || y==len(m.Walls)-1 {
-                m.Walls[y][x] = 1
+func (m *Map) GenerateWalls() {
+    for y := 0; y < len(m.Tiles); y++ {
+        for x := 0; x < len(m.Tiles[y]); x++ {
+            if x==0 || x==len(m.Tiles[y])-1 || y==0 || y==len(m.Tiles)-1 {
+                m.Tiles[y][x].Wall = constants.WALL_NORMAL
             } else {
                 if rand.Intn(4)==1 {
-                    m.Walls[y][x] = 1
+                    m.Tiles[y][x].Wall = constants.WALL_NORMAL
                 } else {
-                    m.Walls[y][x] = 0
+                    m.Tiles[y][x].Wall = constants.WALL_NONE
                 }
             }
         }
     }
 }
 
-func (m *Map) GenerateItems(floor int) {
-    tilecount := len(m.Walls[0])*len(m.Walls)
+func (m *Map) GenerateItems() {
+    tilecount := len(m.Tiles[0])*len(m.Tiles)
     ratio := float32(tilecount) / 10000.0
     
     for i:=0; i<len(item.ItemList); i++ {        
-        if floor >= item.ItemList[i].Floor_min && floor <= item.ItemList[i].Floor_max {
+        if m.Floor >= item.ItemList[i].Floor_min && m.Floor <= item.ItemList[i].Floor_max {
             count := item.ItemList[i].Max_per_floor * ratio
             
             for j:=0; j<=int(count)+1; j++ {
-                x := rand.Intn(len(m.Walls[0]))
-                y := rand.Intn(len(m.Walls))
+                x := rand.Intn(len(m.Tiles[0]))
+                y := rand.Intn(len(m.Tiles))
                 
-                if m.Walls[y][x]==0 {
-                    m.Items[y][x] = item.ItemList[i].Clone()
+                if m.Tiles[y][x].Wall==constants.WALL_NONE {
+                    m.Tiles[y][x].Item = item.ItemList[i].Clone()
                 }
             }
         }
@@ -95,9 +105,9 @@ func (m *Map) GenerateItems(floor int) {
 //********
 
 func (m *Map) IsBlocked(x, y int) bool {
-    if y>=0 && y<len(m.Walls) {
-        if x>=0 && x<len(m.Walls[y]) {
-            return m.Walls[y][x]==1
+    if y>=0 && y<len(m.Tiles) {
+        if x>=0 && x<len(m.Tiles[y]) {
+            return m.Tiles[y][x].Wall!=constants.WALL_NONE
         }
     }
     return false
@@ -106,21 +116,21 @@ func (m *Map) IsBlocked(x, y int) bool {
 func (m *Map) Display(px, py, wx, wy int) {
     //walls
     for y := py-wy/2; y < py+wy/2; y++ {
-        if y>=0 && y<len(m.Walls) {    
+        if y>=0 && y<len(m.Tiles) {    
             
             var line string = ""
             
             for x := px-wx/2+1; x < px+wx/2+1; x++ {
-                if x>=0 && x<len(m.Walls[y]) && m.Walls[y][x]!=0 {
-                    line += utils.RUNE_WALL                    
+                if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Wall!=constants.WALL_NONE {
+                    line += constants.RUNE_WALL                    
                 } else {
-                    line += utils.RUNE_FLOOR
+                    line += constants.RUNE_FLOOR
                 }
             }
             
             dy := wy/2+y-py
             if dy>1 && dy<wy-1 {
-                ansiterm.SetFGColor(utils.COLOR_WALL)
+                ansiterm.SetFGColor(constants.COLOR_WALL)
                 ansiterm.MoveToXY(0,dy)
                 fmt.Print(line)
             }
@@ -129,15 +139,15 @@ func (m *Map) Display(px, py, wx, wy int) {
     
     //items
     for y := py-wy/2; y < py+wy/2; y++ {
-        if y>=0 && y<len(m.Walls) {                
+        if y>=0 && y<len(m.Tiles) {                
             for x := px-wx/2+1; x < px+wx/2+1; x++ {
-                if x>=0 && x<len(m.Walls[y]) && m.Items[y][x]!=nil {
+                if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Item!=nil {
                     dx := wx/2+x-px
                     dy := wy/2+y-py
                     if dy>1 && dy<wy-1 {
-                        ansiterm.SetFGColor(m.Items[y][x].Fgcolor)
+                        ansiterm.SetFGColor(m.Tiles[y][x].Item.Fgcolor)
                         ansiterm.MoveToXY(dx,dy)
-                        fmt.Print(m.Items[y][x].Rune)
+                        fmt.Print(m.Tiles[y][x].Item.Rune)
                     }
                 }
             }

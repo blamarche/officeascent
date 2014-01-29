@@ -7,7 +7,7 @@ package item
 
 
 import (
-
+    "../constants"
 )
 
 
@@ -75,13 +75,23 @@ var ItemList []Item = []Item{
 		KIND_WEAPON,
 		SUBKIND_WEAPON_RANGED,
 	},
-};
+	Item{
+		"fake wall",
+		"crumble a",
+		"#",
+		1, //min floor
+		999, //max floor
+        4, //frequency
+		constants.COLOR_WALL, //fgcolor
+		KIND_COLLECTIBLE,
+		SUBKIND_NONE,
+	},
+}
 
 
 //FUNCTIONS
 func (i *Item) Clone() *Item {
     //not exactly memory efficient :)
-    
     copy := Item{
         i.Name,
         i.Use_desc, 

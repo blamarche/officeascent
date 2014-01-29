@@ -15,25 +15,6 @@ import (
 //*********************************************
 //*********************************************
 
-const VERSION = "0.1 Alpha"
-
-//ansi colors for game runes
-const (
-	COLOR_PLAYER = 2
-	COLOR_WALL = 5
-)
-
-//runes
-const (
-	RUNE_PLAYER = "@"
-	RUNE_WALL = "#"
-    RUNE_FLOOR = " "
-)
-
-
-//*********************************************
-//*********************************************
-
 //Message for top of screen
 var message string = "Welcome, office adventurer!"
 func SetMessage(s string) {

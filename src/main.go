@@ -9,14 +9,14 @@ import (
     "os"
     "math/rand"
     "time"
+    "strconv"
 
     "./player"
-	//"./item"
     "./world"
     "./utils"
+    "./constants"
+    "./cursor"
 )
-
-//TODO: "Look" functionality w/ "cursor"
 
 
 // GLOBALS
@@ -27,6 +27,7 @@ var (
     worldmap *world.Map
     
 	p1 *player.Player
+    cur *cursor.Cursor
 	
 	wx = 64 //screen width
 	wy = 24 //screen height
@@ -50,9 +51,7 @@ func main() {
     //config world and player here    
     worldmap = world.NewMap(100, 60, 1) //width, height, floor
     p1 = player.NewPlayerXY(50,30, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)	
-    
-	//fmt.Println(item.ItemList[0].Use_desc)
-	
+    	
     //game turn loop
     for {
         tick_count++       
@@ -71,6 +70,20 @@ func main() {
         worldmap.Display(p1.X, p1.Y, wx, wy)
         
         p1.Display(wx,wy)
+
+        if cur!=nil {
+            cur.Display()            
+        }
+
+        switch worldmap.GameState {
+            case constants.STATE_LOOK:
+                pos := cur.GetMapXY(p1.X, p1.Y)
+                if pos[1]>=0 && pos[1]<worldmap.Height && pos[0]>=0 && pos[0]<worldmap.Width && worldmap.Tiles[pos[1]][pos[0]].Item!=nil {
+                    utils.SetMessage("You see: "+worldmap.Tiles[pos[1]][pos[0]].Item.Name)
+                } else {
+                    utils.SetMessage("Cur: "+strconv.Itoa(pos[0])+", "+strconv.Itoa(pos[1]))
+                }
+        }
 
         ansiterm.SetFGColor(7)
 		ansiterm.MoveToXY(0,0)
@@ -96,26 +109,59 @@ func doInput(input string) bool {
     if input=="Q" {
         return true
     } else {        
-        switch input {
-            case "ESC:A", "8", "k":
-                p1.MoveUp()
-            case "ESC:B", "2", "j":
-                p1.MoveDown()
-            case "ESC:C", "6", "l":
-                p1.MoveRight()
-            case "ESC:D", "4", "h":
-                p1.MoveLeft() 
-            case "7", "y": 
-                p1.MoveUpLeft()
-            case "9", "u": 
-                p1.MoveUpRight()
-            case "1", "b": 
-                p1.MoveDownLeft()
-            case "3", "n": 
-                p1.MoveDownRight()
-            default:
-                fmt.Printf("You pressed: %s\n", input)
-        }            
+        
+        if worldmap.GameState == constants.STATE_LOOK {
+            
+            switch input {
+                case "ESC:A", "8", "k":
+                    cur.MoveUp()
+                case "ESC:B", "2", "j":
+                    cur.MoveDown()
+                case "ESC:C", "6", "l":
+                    cur.MoveRight()
+                case "ESC:D", "4", "h":
+                    cur.MoveLeft() 
+                case "7", "y": 
+                    cur.MoveUpLeft()
+                case "9", "u": 
+                    cur.MoveUpRight()
+                case "1", "b": 
+                    cur.MoveDownLeft()
+                case "3", "n": 
+                    cur.MoveDownRight()
+                case " ":                    
+                    cur = nil
+                    worldmap.GameState = constants.STATE_NORMAL
+            }
+            return false
+        } else {
+
+            switch input {
+                
+                case "L", "s":
+                    cur = cursor.NewCursor(wx/2, wy/2, 1, wx, 2, wy-2, 1, 2)
+                    worldmap.GameState = constants.STATE_LOOK
+
+                case "ESC:A", "8", "k":
+                    p1.MoveUp()
+                case "ESC:B", "2", "j":
+                    p1.MoveDown()
+                case "ESC:C", "6", "l":
+                    p1.MoveRight()
+                case "ESC:D", "4", "h":
+                    p1.MoveLeft() 
+                case "7", "y": 
+                    p1.MoveUpLeft()
+                case "9", "u": 
+                    p1.MoveUpRight()
+                case "1", "b": 
+                    p1.MoveDownLeft()
+                case "3", "n": 
+                    p1.MoveDownRight()
+                default:
+                    fmt.Printf("You pressed: %s\n", input)
+            }       
+        }  
     }
     
     return false
@@ -127,7 +173,7 @@ func getKeypress() string {
     
     if buffer[0]==27 {
         getKeypress()
-        return "ESC:"+getKeypress();
+        return "ESC:"+getKeypress()
     }
     
     return string(buffer[:])
@@ -155,7 +201,7 @@ func showIntro() {
     ansiterm.ClearPage()
     ansiterm.MoveToXY(0,0)
     fmt.Println("_-= OFFICE ASCENT =-_")
-    fmt.Println("Version: "+utils.VERSION)
+    fmt.Println("Version: "+constants.VERSION)
     fmt.Println("")
     fmt.Println("Movement Controls: Arrows, Numpad (numlock ON), hjklyubn keys")
     fmt.Println("")

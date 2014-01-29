@@ -10,7 +10,7 @@ import (
     "github.com/blamarche/ansiterm"
     "fmt"
     
-    "../utils"
+    "../constants"
     "../world"
 )
 
@@ -153,8 +153,8 @@ func (e *Player) MoveRight() bool {
 //DISPLAY 
 //*******
 func (e *Player) Display(wx, wy int) {
-    ansiterm.SetFGColor(utils.COLOR_PLAYER)
+    ansiterm.SetFGColor(constants.COLOR_PLAYER)
     ansiterm.MoveToXY(wx/2,wy/2)
-    fmt.Print(utils.RUNE_PLAYER)
+    fmt.Print(constants.RUNE_PLAYER)
 }
 
