@@ -16,6 +16,8 @@ import (
     "./utils"
 )
 
+//TODO: "Look" functionality w/ "cursor"
+
 
 // GLOBALS
 var (
