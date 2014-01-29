@@ -24,18 +24,21 @@ const (
 	SUBKIND_WEAPON_RANGED
 )
 
-
-type Item struct {
+//Item struct
+//if you add anything here don't forget to update Clone()!
+type Item struct { 
     Name string
 	Use_desc string
     Rune string
 	Floor_min int
 	Floor_max int
+    Max_per_floor float32 //per 10000 squares (ie 100x100 room)
 	Fgcolor int
     Kind int //type of item (weapon, potion, collectible, etc)
-	Subkind int //subtype of item
+	Subkind int //subtype of item    
 }
 
+//TODO: item runes should be randomized?
 
 //Item runes will be lowercase, enemies uppercase.
 var ItemList []Item = []Item{
@@ -43,8 +46,9 @@ var ItemList []Item = []Item{
 		"executive report",
 		"present an",
 		"e",
-		0,
-		20,
+		1, //min floor
+		20, //max floor
+        10, //frequency
 		3, //fgcolor
 		KIND_WEAPON,
 		SUBKIND_NONE,
@@ -53,10 +57,46 @@ var ItemList []Item = []Item{
 		"bonus check",
 		"cash a",
 		"b",
-		0,
-		20,
-		4, //fgcolor
+		1, //min floor
+		20, //max floor
+        5, //frequency
+		6, //fgcolor
 		KIND_POTION,
 		SUBKIND_POTION_GOOD,
 	},
+    Item{
+		"stapler",
+		"mess up printouts with a",
+		"s",
+		2, //min floor
+		4, //max floor
+        50, //frequency
+		2, //fgcolor
+		KIND_WEAPON,
+		SUBKIND_WEAPON_RANGED,
+	},
 };
+
+
+//FUNCTIONS
+func (i *Item) Clone() *Item {
+    //not exactly memory efficient :)
+    
+    copy := Item{
+        i.Name,
+        i.Use_desc, 
+        i.Rune ,
+        i.Floor_min ,
+        i.Floor_max ,
+        i.Max_per_floor, 
+        i.Fgcolor ,
+        i.Kind ,
+        i.Subkind,  
+    }
+    
+    return &copy
+}
+
+
+
+
