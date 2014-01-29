@@ -15,6 +15,8 @@ import (
 //*********************************************
 //*********************************************
 
+const VERSION = "0.1 Alpha"
+
 //ansi colors for game runes
 const (
 	COLOR_PLAYER = 2

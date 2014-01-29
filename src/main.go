@@ -43,6 +43,8 @@ func main() {
     defer term.Echo(true)
     defer ansiterm.ClearPage()
 
+    showIntro()
+    
     //config world and player here    
     worldmap = world.NewMap(100, 60, 1) //width, height, floor
     p1 = player.NewPlayerXY(50,30, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)	
@@ -81,8 +83,7 @@ func main() {
             if doInput(input) {
                 break
             }
-        }
-        
+        }       
         
     }	
 }
@@ -146,4 +147,16 @@ func initTerm() {
 	term.KeyPress()
     ansiterm.HideCursor()
     ansiterm.ClearPage()
+}
+
+func showIntro() {
+    ansiterm.ClearPage()
+    ansiterm.MoveToXY(0,0)
+    fmt.Println("_-= OFFICE ASCENT =-_")
+    fmt.Println("Version: "+utils.VERSION)
+    fmt.Println("")
+    fmt.Println("Movement Controls: Arrows, Numpad (numlock ON), hjklyubn keys")
+    fmt.Println("")
+    fmt.Println("Press any key to start...")
+    getKeypress()
 }
