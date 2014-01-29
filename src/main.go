@@ -78,7 +78,7 @@ func main() {
         switch worldmap.GameState {
             case constants.STATE_LOOK:
                 pos := cur.GetMapXY(p1.X, p1.Y)
-                if pos[1]>=0 && pos[1]<worldmap.Height && pos[0]>=0 && pos[0]<worldmap.Width && worldmap.Tiles[pos[1]][pos[0]].Item!=nil {
+                if pos[1]>=0 && pos[1]<worldmap.Height && pos[0]>=0 && pos[0]<worldmap.Width && worldmap.Tiles[pos[1]][pos[0]].Revealed && worldmap.Tiles[pos[1]][pos[0]].Item!=nil {
                     utils.SetMessage("You see: "+worldmap.Tiles[pos[1]][pos[0]].Item.Name)
                 } else {
                     utils.SetMessage("Cur: "+strconv.Itoa(pos[0])+", "+strconv.Itoa(pos[1]))
@@ -98,7 +98,9 @@ func main() {
             if doInput(input) {
                 break
             }
-        }       
+        }
+
+        worldmap.RevealTilesAround(p1.X, p1.Y, p1.LightRadius)
         
     }	
 }

@@ -9,6 +9,7 @@ package world
 import (
     "github.com/blamarche/ansiterm"
     "math/rand"
+    "math"
     "fmt"
     
     "../item"
@@ -18,6 +19,7 @@ import (
 type MapTile struct {
     Wall int
     Item *item.Item
+    Revealed bool
     //Enemy
     //Door
     //Other
@@ -54,6 +56,7 @@ func NewMap(width, height, floor int) *Map {
             m.Tiles[y][x] = &MapTile{}
             m.Tiles[y][x].Wall = 0
             m.Tiles[y][x].Item = nil
+            m.Tiles[y][x].Revealed = false
         }
     }
     
@@ -104,6 +107,18 @@ func (m *Map) GenerateItems() {
 //GAMEPLAY
 //********
 
+func (m *Map) RevealTilesAround(x, y, radius int) {
+    //not really a radius
+    for xx:=x-radius; xx<x+radius; xx++ {
+        for yy:=y-radius; yy<y+radius; yy++ {
+            diff := int(math.Abs(float64(x-xx)) + math.Abs(float64(y-yy)))
+            if diff < radius && xx>=0 && xx<m.Width && yy>=0 && yy<m.Height {
+                m.Tiles[yy][xx].Revealed = true
+            }
+        }
+    }
+}
+
 func (m *Map) IsBlocked(x, y int) bool {
     if y>=0 && y<len(m.Tiles) {
         if x>=0 && x<len(m.Tiles[y]) {
@@ -121,7 +136,9 @@ func (m *Map) Display(px, py, wx, wy int) {
             var line string = ""
             
             for x := px-wx/2+1; x < px+wx/2+1; x++ {
-                if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Wall!=constants.WALL_NONE {
+                if x>=0 && x<len(m.Tiles[y]) && !m.Tiles[y][x].Revealed {
+                    line += constants.RUNE_HIDDEN
+                } else if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Wall!=constants.WALL_NONE {
                     line += constants.RUNE_WALL                    
                 } else {
                     line += constants.RUNE_FLOOR
@@ -144,7 +161,7 @@ func (m *Map) Display(px, py, wx, wy int) {
                 if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Item!=nil {
                     dx := wx/2+x-px
                     dy := wy/2+y-py
-                    if dy>1 && dy<wy-1 {
+                    if dy>1 && dy<wy-1 && m.Tiles[y][x].Revealed {
                         ansiterm.SetFGColor(m.Tiles[y][x].Item.Fgcolor)
                         ansiterm.MoveToXY(dx,dy)
                         fmt.Print(m.Tiles[y][x].Item.Rune)

@@ -39,8 +39,10 @@ type Player struct {
 	Spirit int
 	Greed int
 	
+    LightRadius int
+    
     Class int //classof player
-    State int
+    PlayerState int
 }
 
 
@@ -51,7 +53,7 @@ func NewPlayer(hp int, max_hp int, amb int, charm int, spirit int, greed int, cl
 }
 
 func NewPlayerXY(x int, y int, hp int, max_hp int, amb int, charm int, spirit int, greed int, class int) *Player {
-    var e Player = Player{x, y,  hp, max_hp, amb, charm, spirit, greed, class,0}
+    var e Player = Player{x, y,  hp, max_hp, amb, charm, spirit, greed, constants.START_RADIUS, class, constants.PLAYERSTATE_NORMAL}
     return &e
 }
 
