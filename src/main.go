@@ -44,7 +44,9 @@ func main() {
     defer term.RestoreTerm()    
     defer ansiterm.ResetTerm(ansiterm.NORMAL)
     defer term.Echo(true)
-    defer ansiterm.ClearPage()
+    if constants.DEBUG_NOCLEAR==0 {
+        defer ansiterm.ClearPage()
+    }
 
     showIntro()
     
@@ -55,6 +57,10 @@ func main() {
     //game turn loop
     for {
         tick_count++       
+        
+        //per-turn logic and actions
+        worldmap.AdvanceTurn()
+        worldmap.RevealTilesAround(p1.X, p1.Y, p1.LightRadius)
         
 		//draw screen
         ansiterm.SetFGColor(7)
@@ -89,19 +95,15 @@ func main() {
 		ansiterm.MoveToXY(0,0)
         fmt.Printf("%s ", utils.GetMessage())
         
-        
 		//wait for input
         ansiterm.MoveToXY(0,0)
-		input = getKeypress()
-        
+		input = getKeypress()        
         if input!="" {
             if doInput(input) {
                 break
             }
         }
 
-        worldmap.RevealTilesAround(p1.X, p1.Y, p1.LightRadius)
-        
     }	
 }
 

@@ -44,8 +44,27 @@ const (
     MAPGEN_CELL
     MAPGEN_NOISE
 )
+const (
+    MAPGEN_PROC_ITERATIONS = 100
+    MAPGEN_PROC_ROOMSIZE_MINY = 1
+    MAPGEN_PROC_ROOMSIZE_MAXY = 13
+    MAPGEN_PROC_ROOMSIZE_MINX = 1
+    MAPGEN_PROC_ROOMSIZE_MAXX = 20
+    MAPGEN_PROC_PATH_FREQ = 5 //higher == less frequent
+    MAPGEN_PROC_LEFT = 0
+    MAPGEN_PROC_RIGHT = 1
+    MAPGEN_PROC_UP = 2
+    MAPGEN_PROC_DOWN = 3
+)
 
 //player states 
 const (
     PLAYERSTATE_NORMAL = iota
+)
+
+//debug settings
+const (
+    DEBUG_NOWALL = 0
+    DEBUG_REVEAL_ALL = 0
+    DEBUG_NOCLEAR = 0
 )

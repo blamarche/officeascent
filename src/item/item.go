@@ -79,7 +79,7 @@ var ItemList []Item = []Item{
 		"fake wall",
 		"crumble a",
 		"#",
-		1, //min floor
+		2, //min floor
 		999, //max floor
         4, //frequency
 		constants.COLOR_WALL, //fgcolor

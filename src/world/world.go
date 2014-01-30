@@ -26,14 +26,20 @@ type MapTile struct {
 }
 
 type Map struct {  //[y][x] or [row][col]
-    Tiles [][]*MapTile
+    Tiles [][]*MapTile    
     Floor int
     Width int
     Height int
     GameState int
+    
+    rooms [constants.MAPGEN_PROC_ITERATIONS][4]int
 }
 
-var CurrentMap *Map
+var (
+    CurrentMap *Map
+    
+    gen_method int = constants.MAPGEN_PROC
+)
 
 
 //CREATION
@@ -57,6 +63,9 @@ func NewMap(width, height, floor int) *Map {
             m.Tiles[y][x].Wall = 0
             m.Tiles[y][x].Item = nil
             m.Tiles[y][x].Revealed = false
+            if constants.DEBUG_REVEAL_ALL==1 {
+                m.Tiles[y][x].Revealed = true
+            }
         }
     }
     
@@ -65,22 +74,6 @@ func NewMap(width, height, floor int) *Map {
     
     CurrentMap = &m
     return &m
-}
-
-func (m *Map) GenerateWalls() {
-    for y := 0; y < len(m.Tiles); y++ {
-        for x := 0; x < len(m.Tiles[y]); x++ {
-            if x==0 || x==len(m.Tiles[y])-1 || y==0 || y==len(m.Tiles)-1 {
-                m.Tiles[y][x].Wall = constants.WALL_NORMAL
-            } else {
-                if rand.Intn(4)==1 {
-                    m.Tiles[y][x].Wall = constants.WALL_NORMAL
-                } else {
-                    m.Tiles[y][x].Wall = constants.WALL_NONE
-                }
-            }
-        }
-    }
 }
 
 func (m *Map) GenerateItems() {
@@ -106,9 +99,13 @@ func (m *Map) GenerateItems() {
 
 //GAMEPLAY
 //********
+func (m *Map) AdvanceTurn() {
+    //enemy ai, etc
+}
 
 func (m *Map) RevealTilesAround(x, y, radius int) {
     //not really a radius
+    
     for xx:=x-radius; xx<x+radius; xx++ {
         for yy:=y-radius; yy<y+radius; yy++ {
             diff := int(math.Abs(float64(x-xx)) + math.Abs(float64(y-yy)))
@@ -120,6 +117,10 @@ func (m *Map) RevealTilesAround(x, y, radius int) {
 }
 
 func (m *Map) IsBlocked(x, y int) bool {
+    if constants.DEBUG_NOWALL==1 {
+        return false
+    }
+    
     if y>=0 && y<len(m.Tiles) {
         if x>=0 && x<len(m.Tiles[y]) {
             return m.Tiles[y][x].Wall!=constants.WALL_NONE
