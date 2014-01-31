@@ -4,7 +4,6 @@ package main
 import (
     "github.com/blamarche/ansiterm"
     "github.com/blamarche/Go-Term/term"
-	"github.com/blamarche/astar"
     
 	"fmt"
     "os"
@@ -143,7 +142,14 @@ func doInput(input string) bool {
 
             switch input {
                 case "a":
-					testAStar()
+					path := worldmap.GetPath(p1.X, p1.Y, worldmap.Width/2, worldmap.Height/2)
+    
+                    for i:=0; i<len(path); i++ {
+                        ansiterm.MoveToXY(path[i].X-p1.X/2, path[i].Y-p1.Y/2)
+                        fmt.Print("P")
+                    }
+                    
+                    getKeypress()
 					
                 case "L", "s":
                     cur = cursor.NewCursor(wx/2, wy/2, 1, wx, 2, wy-2, 1, 2)
@@ -172,29 +178,6 @@ func doInput(input string) bool {
     }
     
     return false
-}
-
-func testAStar() {
-	adata := astar.NewMapData(worldmap.Height, worldmap.Width)
-	for i:=0; i<worldmap.Height; i++ {
-		for j:=0; j<worldmap.Width; j++ {
-			if worldmap.Tiles[i][j].Wall != constants.WALL_NONE {
-				adata[i][j] = astar.WALL
-			} else {
-				adata[i][j] = astar.LAND
-			}
-		}
-	}
-	
-	path := astar.Astar(adata, p1.X, p1.Y, worldmap.Width/2, worldmap.Height/2, true)
-	ansiterm.MoveToXY(2,2)
-	fmt.Print(path)
-	for i:=0; i<len(path); i++ {
-		ansiterm.MoveToXY(path[i].X-p1.X/2, path[i].Y-p1.Y/2)
-		fmt.Print("P")
-	}
-	
-	getKeypress()
 }
 
 func getKeypress() string {

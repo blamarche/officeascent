@@ -8,6 +8,8 @@ package world
 
 import (
     "github.com/blamarche/ansiterm"
+    "github.com/blamarche/astar"
+
     "math/rand"
     "math"
     "fmt"
@@ -26,7 +28,8 @@ type MapTile struct {
 }
 
 type Map struct {  //[y][x] or [row][col]
-    Tiles [][]*MapTile    
+    Tiles [][]*MapTile
+    PathData astar.MapData 
     Floor int
     Width int
     Height int
@@ -51,6 +54,13 @@ func NewMap(width, height, floor int) *Map {
     m.Width = width 
     m.Height = height 
     
+    m.PathData = astar.NewMapData(m.Width, m.Height)
+    for y:=0; y<m.Height; y++ {
+        for x:=0; x<m.Width; x++ {
+            m.PathData[x][y] = astar.LAND            
+        }
+    }
+
     m.Tiles = make([][]*MapTile, height)
     
     for i := range m.Tiles {
@@ -72,6 +82,8 @@ func NewMap(width, height, floor int) *Map {
     m.GenerateWalls()
     m.GenerateItems()
     
+    m.RefreshPathData()
+
     CurrentMap = &m
     return &m
 }
@@ -99,8 +111,28 @@ func (m *Map) GenerateItems() {
 
 //GAMEPLAY
 //********
+func (m *Map) RefreshPathData() {
+    for y:=0; y<m.Height; y++ {
+        for x:=0; x<m.Width; x++ {
+            if m.Tiles[y][x].Wall!=constants.WALL_NONE {
+                m.PathData[x][y] = astar.WALL
+            } else {
+                m.PathData[x][y] = astar.LAND
+            }
+        }
+    }
+}
+
+func (m *Map) GetPath(sx, sy, ex, ey int) []*astar.Node {
+    path := astar.Astar(m.PathData, sx, sy, ex, ey, true)
+    return path
+}
+
 func (m *Map) AdvanceTurn() {
     //enemy ai, etc
+
+    //TODO: add dirty flag to this
+    m.RefreshPathData()
 }
 
 func (m *Map) RevealTilesAround(x, y, radius int) {
