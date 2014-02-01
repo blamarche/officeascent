@@ -1,5 +1,21 @@
 package main
 
+/*
+TODO:
+
+Inventory & item pickup
+Doors & keys
+Item randomization (attributes & runes)
+Enemies, Basic AI
+Player "attacks", weapon equip
+Using potions
+Ranged AI
+Stats log
+Disguise
+Backstab
+
+*/
+
 
 import (
     "github.com/blamarche/ansiterm"
@@ -51,8 +67,8 @@ func main() {
     showIntro()
     
     //config world and player here    
-    worldmap = world.NewMap(100, 60, 1) //width, height, floor
-    p1 = player.NewPlayerXY(50,30, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)			
+    worldmap = world.NewMap(150, 80, 1) //width, height, floor
+    p1 = player.NewPlayerXY(75,40, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)			
 		
     //game turn loop
     for {
@@ -138,19 +154,10 @@ func doInput(input string) bool {
                     worldmap.GameState = constants.STATE_NORMAL
             }
             return false
+            
         } else {
 
             switch input {
-                case "a":
-					path := worldmap.GetPath(p1.X, p1.Y, worldmap.Width/2, worldmap.Height/2)
-    
-                    for i:=0; i<len(path); i++ {
-                        ansiterm.MoveToXY(path[i].X-p1.X/2, path[i].Y-p1.Y/2)
-                        fmt.Print("P")
-                    }
-                    
-                    getKeypress()
-					
                 case "L", "s":
                     cur = cursor.NewCursor(wx/2, wy/2, 1, wx, 2, wy-2, 1, 2)
                     worldmap.GameState = constants.STATE_LOOK
@@ -173,7 +180,8 @@ func doInput(input string) bool {
                     p1.MoveDownRight()
                 default:
                     fmt.Printf("You pressed: %s\n", input)
-            }       
+            }
+            
         }  
     }
     
