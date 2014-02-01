@@ -35,6 +35,8 @@ const (
 const (
 	STATE_NORMAL = iota
 	STATE_LOOK
+    STATE_INVENTORY
+    STATE_INVENTORY_DROP
 )
 
 //map gen methods

@@ -15,7 +15,7 @@ import (
 //*********************************************
 //*********************************************
 
-//Message for top of screen
+//Message for top of screen, maybe move this into world.go?
 var message string = "Welcome, office adventurer!"
 func SetMessage(s string) {
     message = s

@@ -12,7 +12,9 @@ import (
 
 
 const (
-    KIND_WEAPON = iota   
+    KIND_WEAPON_BOTH = iota   
+    KIND_WEAPON_PROMOTE
+    KIND_WEAPON_DEMOTE
     KIND_POTION
     KIND_COLLECTIBLE //non-functional paychecks, etc
 )
@@ -48,9 +50,9 @@ var ItemList []Item = []Item{
 		"e",
 		1, //min floor
 		20, //max floor
-        10, //frequency
+        15, //frequency
 		3, //fgcolor
-		KIND_WEAPON,
+		KIND_WEAPON_DEMOTE,
 		SUBKIND_NONE,
 	},
 	Item{
@@ -59,7 +61,7 @@ var ItemList []Item = []Item{
 		"b",
 		1, //min floor
 		20, //max floor
-        5, //frequency
+        10, //frequency
 		6, //fgcolor
 		KIND_POTION,
 		SUBKIND_POTION_GOOD,
@@ -72,14 +74,14 @@ var ItemList []Item = []Item{
 		4, //max floor
         50, //frequency
 		2, //fgcolor
-		KIND_WEAPON,
+		KIND_WEAPON_PROMOTE,
 		SUBKIND_WEAPON_RANGED,
 	},
 	Item{
 		"fake wall",
 		"crumble a",
 		"#",
-		2, //min floor
+		1, //min floor
 		999, //max floor
         4, //frequency
 		constants.COLOR_WALL, //fgcolor

@@ -12,8 +12,11 @@ import (
     
     "../constants"
     "../world"
+    "../item"
 )
 
+
+const INVENTORY_MAX = 26
 
 const (
     CLASS_ENGINEER = iota   
@@ -43,6 +46,7 @@ type Player struct {
     
     Class int //classof player
     PlayerState int
+    Inventory []*item.Item
 }
 
 
@@ -53,8 +57,81 @@ func NewPlayer(hp int, max_hp int, amb int, charm int, spirit int, greed int, cl
 }
 
 func NewPlayerXY(x int, y int, hp int, max_hp int, amb int, charm int, spirit int, greed int, class int) *Player {
-    var e Player = Player{x, y,  hp, max_hp, amb, charm, spirit, greed, constants.START_RADIUS, class, constants.PLAYERSTATE_NORMAL}
+    
+    e := Player{
+        x, 
+        y,  
+        hp, 
+        max_hp, 
+        amb, 
+        charm, 
+        spirit, 
+        greed, 
+        constants.START_RADIUS, 
+        class, 
+        constants.PLAYERSTATE_NORMAL,
+        make([]*item.Item, INVENTORY_MAX),
+    }
+    
     return &e
+}
+
+
+//INVENTORY 
+//*********
+func (e *Player) AddInventoryItem(it *item.Item) int {
+    for i:=0; i<INVENTORY_MAX; i++ {
+        if e.Inventory[i]==nil {
+            e.Inventory[i] = it
+            return i
+        }
+    }
+    return -1
+}
+
+func (e *Player) StringToInvIndex(c string) int {
+    code := int(c[0])
+    index := code - 97
+    
+    if index<0 || index>=INVENTORY_MAX {
+        return -1
+    } 
+    
+    return index 
+}
+
+func (e *Player) RemoveInventoryItem(index int) *item.Item {
+    if index<INVENTORY_MAX && index>=0 {
+        tmp := e.Inventory[index]
+        e.Inventory[index] = nil
+        return tmp
+    }
+    return nil
+}
+
+func (e *Player) ListInventory(mesg string) {
+    ansiterm.SetFGColor(7)
+    
+    ansiterm.MoveToXY(2,3)
+    fmt.Print(mesg) //key int(s) == 97 for 'a', 'A'==65
+    
+    for i:=0; i<INVENTORY_MAX/2; i++ {
+        ansiterm.MoveToXY(2,i+5)
+        if e.Inventory[i]!=nil {
+            fmt.Printf(" %s: %s", string(97+i), e.Inventory[i].Name)
+        } else {
+            fmt.Print("                           ")
+        }
+    }
+    
+    for i:=INVENTORY_MAX/2; i<INVENTORY_MAX; i++ {
+        ansiterm.MoveToXY(31,i+5-INVENTORY_MAX/2)
+        if e.Inventory[i]!=nil {
+            fmt.Printf(" %s: %s", string(97+i), e.Inventory[i].Name)            
+        } else {
+            fmt.Print("                           ")
+        }
+    }
 }
 
 

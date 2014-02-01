@@ -111,6 +111,10 @@ func (m *Map) GenerateItems() {
 
 //GAMEPLAY
 //********
+func (m *Map) InBounds(x, y int) bool {
+    return (x>=0 && y>=0 && x<m.Width && y<m.Height)
+}
+
 func (m *Map) RefreshPathData() {
     for y:=0; y<m.Height; y++ {
         for x:=0; x<m.Width; x++ {
