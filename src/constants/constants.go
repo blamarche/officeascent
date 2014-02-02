@@ -10,25 +10,29 @@ package constants
 
 const VERSION = "0.1 Alpha"
 const START_RADIUS = 7
+const MAX_MAPS = 42
 
 //ansi colors for game runes
 const (
 	COLOR_PLAYER = 2
 	COLOR_WALL = 5
+    COLOR_STAIR = 2
 )
 
 //runes
 const (
 	RUNE_PLAYER = "@"
 	RUNE_WALL = "#"
-    RUNE_FLOOR = " "
-    RUNE_HIDDEN = "."
+    RUNE_FLOOR = "."
+    RUNE_HIDDEN = " "
+    RUNE_BLANK = " "
 )
 
 //walls
 const (
     WALL_NONE = iota
     WALL_NORMAL
+    WALL_BLANK
 )
 
 //game states

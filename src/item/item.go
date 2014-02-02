@@ -40,7 +40,7 @@ type Item struct {
 	Subkind int //subtype of item    
 }
 
-//TODO: item runes should be randomized?
+//TODO: item runes should be randomized
 
 //Item runes will be lowercase, enemies uppercase.
 var ItemList []Item = []Item{
@@ -83,7 +83,7 @@ var ItemList []Item = []Item{
 		"#",
 		1, //min floor
 		999, //max floor
-        4, //frequency
+        6, //frequency
 		constants.COLOR_WALL, //fgcolor
 		KIND_COLLECTIBLE,
 		SUBKIND_NONE,

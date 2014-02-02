@@ -10,7 +10,6 @@ import (
     "github.com/blamarche/ansiterm"
     "github.com/blamarche/astar"
 
-    "math/rand"
     "math"
     "fmt"
     
@@ -25,6 +24,8 @@ type MapTile struct {
     //Enemy
     //Door
     //Other
+    UpStair bool 
+    DownStair bool
 }
 
 type Map struct {  //[y][x] or [row][col]
@@ -34,6 +35,8 @@ type Map struct {  //[y][x] or [row][col]
     Width int
     Height int
     GameState int
+    UpXY [2]int //stairs
+    DownXY [2]int //stairs
     
     rooms [constants.MAPGEN_PROC_ITERATIONS][4]int
 }
@@ -73,6 +76,8 @@ func NewMap(width, height, floor int) *Map {
             m.Tiles[y][x].Wall = 0
             m.Tiles[y][x].Item = nil
             m.Tiles[y][x].Revealed = false
+            m.Tiles[y][x].UpStair = false
+            m.Tiles[y][x].DownStair = false
             if constants.DEBUG_REVEAL_ALL==1 {
                 m.Tiles[y][x].Revealed = true
             }
@@ -81,6 +86,7 @@ func NewMap(width, height, floor int) *Map {
     
     m.GenerateWalls()
     m.GenerateItems()
+    m.GenerateStairs()
     
     m.RefreshPathData()
 
@@ -88,24 +94,10 @@ func NewMap(width, height, floor int) *Map {
     return &m
 }
 
-func (m *Map) GenerateItems() {
-    tilecount := len(m.Tiles[0])*len(m.Tiles)
-    ratio := float32(tilecount) / 10000.0
-    
-    for i:=0; i<len(item.ItemList); i++ {        
-        if m.Floor >= item.ItemList[i].Floor_min && m.Floor <= item.ItemList[i].Floor_max {
-            count := item.ItemList[i].Max_per_floor * ratio
-            
-            for j:=0; j<=int(count)+1; j++ {
-                x := rand.Intn(len(m.Tiles[0]))
-                y := rand.Intn(len(m.Tiles))
-                
-                if m.Tiles[y][x].Wall==constants.WALL_NONE {
-                    m.Tiles[y][x].Item = item.ItemList[i].Clone()
-                }
-            }
-        }
-    }
+func SetCurrentMap(m *Map) *Map {
+    //so ugly !
+    CurrentMap = m
+    return m
 }
 
 
@@ -176,9 +168,15 @@ func (m *Map) Display(px, py, wx, wy int) {
                 if x>=0 && x<len(m.Tiles[y]) && !m.Tiles[y][x].Revealed {
                     line += constants.RUNE_HIDDEN
                 } else if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Wall!=constants.WALL_NONE {
-                    line += constants.RUNE_WALL                    
-                } else {
+                    if m.Tiles[y][x].Wall==constants.WALL_BLANK {
+                        line += constants.RUNE_BLANK
+                    } else {
+                        line += constants.RUNE_WALL
+                    }                    
+                } else if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Wall==constants.WALL_NONE {
                     line += constants.RUNE_FLOOR
+                } else {
+                    line += constants.RUNE_BLANK
                 }
             }
             
@@ -187,6 +185,31 @@ func (m *Map) Display(px, py, wx, wy int) {
                 ansiterm.SetFGColor(constants.COLOR_WALL)
                 ansiterm.MoveToXY(0,dy)
                 fmt.Print(line)
+            }
+        }
+    }
+    
+    //stairs
+    for y := py-wy/2; y < py+wy/2; y++ {
+        if y>=0 && y<len(m.Tiles) {                
+            for x := px-wx/2+1; x < px+wx/2+1; x++ {
+                if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].UpStair {
+                    dx := wx/2+x-px
+                    dy := wy/2+y-py
+                    if dy>1 && dy<wy-1 && m.Tiles[y][x].Revealed {
+                        ansiterm.SetFGColor(constants.COLOR_STAIR)
+                        ansiterm.MoveToXY(dx,dy)
+                        fmt.Print("<")
+                    }
+                } else if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].DownStair {
+                    dx := wx/2+x-px
+                    dy := wy/2+y-py
+                    if dy>1 && dy<wy-1 && m.Tiles[y][x].Revealed {
+                        ansiterm.SetFGColor(constants.COLOR_STAIR)
+                        ansiterm.MoveToXY(dx,dy)
+                        fmt.Print(">")
+                    }
+                }
             }
         }
     }

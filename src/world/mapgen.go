@@ -7,8 +7,10 @@ package world
 
 
 import (
-    "../constants"
     "math/rand"
+    
+    "../item"
+    "../constants"
 )
 
 
@@ -79,6 +81,35 @@ func (m *Map) addRoomToWorld(r [4]int) bool {
         }
     }
     
+    //borders
+    i:=r[0]-1
+    for j:=r[1]-1; j<r[1]+r[3]+1; j++ {
+        if i>=0 && i<m.Width && j>=0 && j<m.Height && m.Tiles[j][i].Wall==constants.WALL_BLANK {
+            m.Tiles[j][i].Wall=constants.WALL_NORMAL
+        }
+    }
+    
+    i=r[0]+r[2]
+    for j:=r[1]-1; j<r[1]+r[3]+1; j++ {
+        if i>=0 && i<m.Width && j>=0 && j<m.Height && m.Tiles[j][i].Wall==constants.WALL_BLANK {
+            m.Tiles[j][i].Wall=constants.WALL_NORMAL
+        }
+    }
+    
+    j:=r[1]-1
+    for i:=r[0]-1; i<r[0]+r[2]+1; i++ {
+        if i>=0 && i<m.Width && j>=0 && j<m.Height && m.Tiles[j][i].Wall==constants.WALL_BLANK {
+            m.Tiles[j][i].Wall=constants.WALL_NORMAL
+        }
+    }
+    
+    j=r[1]+r[3]
+    for i:=r[0]-1; i<r[0]+r[2]+1; i++ {
+        if i>=0 && i<m.Width && j>=0 && j<m.Height && m.Tiles[j][i].Wall==constants.WALL_BLANK {
+            m.Tiles[j][i].Wall=constants.WALL_NORMAL
+        }
+    }
+    
     return true
 }
 
@@ -99,7 +130,7 @@ func (m *Map) GenerateWalls() {
         
         for y := 0; y < len(m.Tiles); y++ {
             for x := 0; x < len(m.Tiles[y]); x++ {
-                m.Tiles[y][x].Wall = constants.WALL_NORMAL
+                m.Tiles[y][x].Wall = constants.WALL_BLANK
             }
         }
         
@@ -161,6 +192,53 @@ func (m *Map) GenerateWalls() {
                     } else {
                         m.Tiles[y][x].Wall = constants.WALL_NONE
                     }
+                }
+            }
+        }
+    }
+}
+
+func (m *Map) GenerateStairs() {
+    //up
+    if m.Floor>1 {
+        for {
+            x:=rand.Intn(m.Width)
+            y:=rand.Intn(m.Height)
+            if m.Tiles[y][x].Wall == constants.WALL_NONE {
+                m.Tiles[y][x].UpStair = true
+                m.UpXY[0]=x
+                m.UpXY[1]=y
+                break
+            }
+        }
+    }
+    //down
+    for {
+        x:=rand.Intn(m.Width)
+        y:=rand.Intn(m.Height)
+        if m.Tiles[y][x].Wall == constants.WALL_NONE && !m.Tiles[y][x].UpStair {
+            m.Tiles[y][x].DownStair = true
+            m.DownXY[0]=x
+            m.DownXY[1]=y
+            break
+        }
+    }
+}
+
+func (m *Map) GenerateItems() {
+    tilecount := len(m.Tiles[0])*len(m.Tiles)
+    ratio := float32(tilecount) / 10000.0
+    
+    for i:=0; i<len(item.ItemList); i++ {        
+        if m.Floor >= item.ItemList[i].Floor_min && m.Floor <= item.ItemList[i].Floor_max {
+            count := item.ItemList[i].Max_per_floor * ratio
+            
+            for j:=0; j<=int(count)+1; j++ {
+                x := rand.Intn(len(m.Tiles[0]))
+                y := rand.Intn(len(m.Tiles))
+                
+                if m.Tiles[y][x].Wall==constants.WALL_NONE {
+                    m.Tiles[y][x].Item = item.ItemList[i].Clone()
                 }
             }
         }

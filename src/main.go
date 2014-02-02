@@ -12,6 +12,7 @@ Ranged attacks
 Ranged AI
 Stats log / collectibles
 Disguise
+Autoexplore
 Backstab
 
 */
@@ -37,16 +38,17 @@ import (
 
 // GLOBALS
 var (
-	license = "GPLv2 - See LICENSE file for details"
-	tick_count int
+	license string = "GPLv2 - See LICENSE file for details"
+	tick_count  int
 	
-    worldmap *world.Map
+    floors      [constants.MAX_MAPS]*world.Map
+    worldmap    *world.Map
     
-	p1 *player.Player
-    cur *cursor.Cursor
+	p1          *player.Player
+    cur         *cursor.Cursor
 	
-	wx = 64 //screen width
-	wy = 24 //screen height
+	wx int = 64 //screen width
+	wy int = 24 //screen height
 )
 
 
@@ -67,8 +69,11 @@ func main() {
     showIntro()
     
     //config world and player here    
-    worldmap = world.NewMap(150, 80, 1) //width, height, floor
-    p1 = player.NewPlayerXY(75,40, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)			
+    for i:=1; i<=constants.MAX_MAPS; i++ {
+        floors[i-1] = world.NewMap(50, 30, i) //width, height, floor
+    }
+    worldmap = world.SetCurrentMap(floors[0])
+    p1 = player.NewPlayerXY(25, 15, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)			
 		
     //game turn loop
     for {
@@ -93,7 +98,6 @@ func main() {
 
 
 //MAIN DRAW
-//*********
 func drawScreen() {
     //draw screen
     ansiterm.SetFGColor(7)
@@ -180,7 +184,7 @@ func doInput(input string) bool {
             playerMoveInput(input)
             switch input {
                 //grab
-                case "g": //TODO: collectibles handled differently (stats)
+                case "g", "5": //TODO: collectibles handled differently (stats)
                     if worldmap.InBounds(p1.X, p1.Y) && worldmap.Tiles[p1.Y][p1.X].Item!=nil {
                         i := p1.AddInventoryItem(worldmap.Tiles[p1.Y][p1.X].Item)
                         if i>=0 {                            
@@ -202,12 +206,29 @@ func doInput(input string) bool {
                 case "L", "s":
                     cur = cursor.NewCursor(wx/2, wy/2, 1, wx, 2, wy-2, 1, 2)
                     worldmap.GameState = constants.STATE_LOOK
+                //downstairs
+                case ">": 
+                    if worldmap.DownXY[0]==p1.X && worldmap.DownXY[1]==p1.Y && worldmap.Tiles[worldmap.DownXY[1]][worldmap.DownXY[0]].DownStair {
+                        worldmap = world.SetCurrentMap(floors[worldmap.Floor])
+                        p1.SetXY(worldmap.UpXY[0], worldmap.UpXY[1])
+                    } else {
+                        utils.SetMessage("No up escalator here!")
+                    }
+                //upstairs
+                case "<": 
+                    if worldmap.UpXY[0]==p1.X && worldmap.UpXY[1]==p1.Y && worldmap.Tiles[worldmap.UpXY[1]][worldmap.UpXY[0]].UpStair {
+                        worldmap = world.SetCurrentMap(floors[worldmap.Floor-2])
+                        p1.SetXY(worldmap.DownXY[0], worldmap.DownXY[1])
+                    } else {
+                        utils.SetMessage("No down escalator here!")
+                    }
                 //?
                 case "?":
                     showHelp()
-                    
+                /*    
                 default:
                     fmt.Printf("Command not recognized: %s, press ? for help\n", input)
+                */
             }
             
         }  
