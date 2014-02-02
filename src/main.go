@@ -73,7 +73,7 @@ func main() {
         floors[i-1] = world.NewMap(50, 30, i) //width, height, floor
     }
     worldmap = world.SetCurrentMap(floors[0])
-    p1 = player.NewPlayerXY(25, 15, 10, 10, 8, 8, 8, 8, player.CLASS_ENGINEER)			
+    p1 = player.NewPlayerXY(25, 15, 10, 10, rand.Intn(4)+4, rand.Intn(4)+4, rand.Intn(4)+4, rand.Intn(4)+4, player.CLASS_ENGINEER)			
 		
     //game turn loop
     for {

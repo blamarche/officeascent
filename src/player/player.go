@@ -67,7 +67,7 @@ func NewPlayerXY(x int, y int, hp int, max_hp int, amb int, charm int, spirit in
         charm, 
         spirit, 
         greed, 
-        constants.START_RADIUS, 
+        constants.START_RADIUS+spirit, 
         class, 
         constants.PLAYERSTATE_NORMAL,
         make([]*item.Item, INVENTORY_MAX),

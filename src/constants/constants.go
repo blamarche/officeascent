@@ -9,7 +9,7 @@ package constants
 //*********************************************
 
 const VERSION = "0.1 Alpha"
-const START_RADIUS = 7
+const START_RADIUS = 2
 const MAX_MAPS = 42
 
 //ansi colors for game runes

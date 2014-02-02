@@ -213,14 +213,16 @@ func (m *Map) GenerateStairs() {
         }
     }
     //down
-    for {
-        x:=rand.Intn(m.Width)
-        y:=rand.Intn(m.Height)
-        if m.Tiles[y][x].Wall == constants.WALL_NONE && !m.Tiles[y][x].UpStair {
-            m.Tiles[y][x].DownStair = true
-            m.DownXY[0]=x
-            m.DownXY[1]=y
-            break
+    if m.Floor<constants.MAX_MAPS {
+        for {
+            x:=rand.Intn(m.Width)
+            y:=rand.Intn(m.Height)
+            if m.Tiles[y][x].Wall == constants.WALL_NONE && !m.Tiles[y][x].UpStair {
+                m.Tiles[y][x].DownStair = true
+                m.DownXY[0]=x
+                m.DownXY[1]=y
+                break
+            }
         }
     }
 }
