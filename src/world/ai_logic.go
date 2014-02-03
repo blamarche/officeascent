@@ -78,7 +78,10 @@ func (m *Map) StepAIAt(x, y int, p1 interfaces.IPlayer) {
 						}
 					}
 				}
-
+			
+			case ai.PATTERN_STILL:
+				a.Dirty = true 
+				return
 		}
 		
 		if m.InBounds(xx,yy) && m.Tiles[yy][xx].Ai==nil && m.Tiles[yy][xx].Wall==constants.WALL_NONE && xx!=px && yy!=py {

@@ -25,6 +25,7 @@ const (
 const (
 	PATTERN_RANDOM = iota
 	PATTERN_WANDER
+	PATTERN_STILL
 )
 
 const (
