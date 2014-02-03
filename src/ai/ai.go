@@ -7,7 +7,7 @@ package ai
 
 
 import (
-    //"../constants"
+    "github.com/blamarche/astar"
 )
 
 
@@ -53,6 +53,9 @@ type AI struct {
 	Greed int
 	State int // STATE_
 	Dirty bool //used by step logic
+	Path []*astar.Node
+	PathIndex int
+	Meta map[string]string
 }
 
 //TODO: ai runes should be randomized
@@ -62,13 +65,13 @@ var AIList []AI = []AI{
 	AI{
 		"office secretary",
 		"puts you on hold",
-		"S",
-		1,
-		999,
+		"S", //rune
+		1, //min floor
+		999, //max floor
 		20, //per 10000 squares (ie 100x100 room)
-		3,
+		4, //fgcolor
 		KIND_AGGRESSIVE,
-		PATTERN_RANDOM,
+		PATTERN_WANDER,
 		WEAK_PROMOTE,
 		15, //attention dist
 		1, //amb
@@ -77,6 +80,9 @@ var AIList []AI = []AI{
 		1, //greed
 		STATE_NORMAL,
 		false, //dirty
+		nil,//path
+		0, //pathindex
+		nil,//meta
 	},
 }
 
@@ -101,7 +107,10 @@ func (a *AI) Clone() *AI {
 		a.Spirit ,
 		a.Greed ,
 		a.State ,
-		a.Dirty, 
+		a.Dirty, 		
+		nil,
+		0, //pathindex
+		make(map[string]string), 
     }
     
     return &copy
