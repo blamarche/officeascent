@@ -115,6 +115,7 @@ func (c *Cursor) MoveDownLeft() {
 func (c *Cursor) Display() {
 	ansiterm.SetBGColor(c.Bgcolor)
 	ansiterm.SetFGColor(c.Fgcolor)
+	
     ansiterm.MoveToXY(c.X, c.Y)
     fmt.Print(c.Rune)
     ansiterm.SetBGColor(0)

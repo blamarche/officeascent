@@ -10,6 +10,7 @@ import (
     "math/rand"
     
     "../item"
+	"../ai"
     "../constants"
 )
 
@@ -241,6 +242,26 @@ func (m *Map) GenerateItems() {
                 
                 if m.Tiles[y][x].Wall==constants.WALL_NONE {
                     m.Tiles[y][x].Item = item.ItemList[i].Clone()
+                }
+            }
+        }
+    }
+}
+
+func (m *Map) GenerateAI() {
+    tilecount := len(m.Tiles[0])*len(m.Tiles)
+    ratio := float32(tilecount) / 10000.0
+    
+    for i:=0; i<len(ai.AIList); i++ {        
+        if m.Floor >= ai.AIList[i].Floor_min && m.Floor <= ai.AIList[i].Floor_max {
+            count := ai.AIList[i].Max_per_floor * ratio
+            
+            for j:=0; j<=int(count)+1; j++ {
+                x := rand.Intn(len(m.Tiles[0]))
+                y := rand.Intn(len(m.Tiles))
+                
+                if m.Tiles[y][x].Wall==constants.WALL_NONE {
+                    m.Tiles[y][x].Ai = ai.AIList[i].Clone()
                 }
             }
         }

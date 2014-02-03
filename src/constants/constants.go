@@ -12,6 +12,14 @@ const VERSION = "0.1 Alpha"
 const START_RADIUS = 2
 const MAX_MAPS = 42
 
+
+//debug settings
+const (
+    DEBUG_NOWALL = 0
+    DEBUG_REVEAL_ALL = 1
+    DEBUG_NOCLEAR = 0
+)
+
 //ansi colors for game runes
 const (
 	COLOR_PLAYER = 2
@@ -66,11 +74,4 @@ const (
 //player states 
 const (
     PLAYERSTATE_NORMAL = iota
-)
-
-//debug settings
-const (
-    DEBUG_NOWALL = 0
-    DEBUG_REVEAL_ALL = 0
-    DEBUG_NOCLEAR = 0
 )

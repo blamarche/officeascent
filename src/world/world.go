@@ -14,14 +14,16 @@ import (
     "fmt"
     
     "../item"
-    "../constants"  
+	"../ai"
+    "../constants"
+	"../interfaces"
 )
 
 type MapTile struct {
     Wall int
     Item *item.Item
     Revealed bool
-    //Enemy
+    Ai *ai.AI
     //Door
     //Other
     UpStair bool 
@@ -75,6 +77,7 @@ func NewMap(width, height, floor int) *Map {
             m.Tiles[y][x] = &MapTile{}
             m.Tiles[y][x].Wall = 0
             m.Tiles[y][x].Item = nil
+			m.Tiles[y][x].Ai = nil
             m.Tiles[y][x].Revealed = false
             m.Tiles[y][x].UpStair = false
             m.Tiles[y][x].DownStair = false
@@ -86,6 +89,7 @@ func NewMap(width, height, floor int) *Map {
     
     m.GenerateWalls()
     m.GenerateItems()
+	m.GenerateAI()
     m.GenerateStairs()
     
     m.RefreshPathData()
@@ -110,7 +114,7 @@ func (m *Map) InBounds(x, y int) bool {
 func (m *Map) RefreshPathData() {
     for y:=0; y<m.Height; y++ {
         for x:=0; x<m.Width; x++ {
-            if m.Tiles[y][x].Wall!=constants.WALL_NONE {
+            if m.Tiles[y][x].Wall!=constants.WALL_NONE { //might need to add ai || here
                 m.PathData[x][y] = astar.WALL
             } else {
                 m.PathData[x][y] = astar.LAND
@@ -124,8 +128,24 @@ func (m *Map) GetPath(sx, sy, ex, ey int) []*astar.Node {
     return path
 }
 
-func (m *Map) AdvanceTurn() {
-    //enemy ai, etc
+func (m *Map) AdvanceTurn(p1 interfaces.IPlayer) {
+    //ai
+	for y:=0; y<m.Height; y++ {
+        for x:=0; x<m.Width; x++ {
+            if m.Tiles[y][x].Ai!=nil {
+				m.StepAIAt(x,y,p1)
+            }
+        }
+    }
+	
+	//reset dirty flag on ai
+	for y:=0; y<m.Height; y++ {
+        for x:=0; x<m.Width; x++ {
+            if m.Tiles[y][x].Ai!=nil {
+				m.Tiles[y][x].Ai.Dirty = false
+            }
+        }
+    }
 
     //TODO: add dirty flag to this
     m.RefreshPathData()
@@ -151,7 +171,7 @@ func (m *Map) IsBlocked(x, y int) bool {
     
     if y>=0 && y<len(m.Tiles) {
         if x>=0 && x<len(m.Tiles[y]) {
-            return m.Tiles[y][x].Wall!=constants.WALL_NONE
+            return (m.Tiles[y][x].Wall!=constants.WALL_NONE || m.Tiles[y][x].Ai!=nil)
         }
     }
     return false
@@ -225,6 +245,23 @@ func (m *Map) Display(px, py, wx, wy int) {
                         ansiterm.SetFGColor(m.Tiles[y][x].Item.Fgcolor)
                         ansiterm.MoveToXY(dx,dy)
                         fmt.Print(m.Tiles[y][x].Item.Rune)
+                    }
+                }
+            }
+        }
+    }
+	
+	//ai
+    for y := py-wy/2; y < py+wy/2; y++ {
+        if y>=0 && y<len(m.Tiles) {                
+            for x := px-wx/2+1; x < px+wx/2+1; x++ {
+                if x>=0 && x<len(m.Tiles[y]) && m.Tiles[y][x].Ai!=nil {
+                    dx := wx/2+x-px
+                    dy := wy/2+y-py
+                    if dy>1 && dy<wy-1 && m.Tiles[y][x].Revealed {
+                        ansiterm.SetFGColor(m.Tiles[y][x].Ai.Fgcolor)
+                        ansiterm.MoveToXY(dx,dy)
+                        fmt.Print(m.Tiles[y][x].Ai.Rune)
                     }
                 }
             }

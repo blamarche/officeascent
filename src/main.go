@@ -26,7 +26,7 @@ import (
     "os"
     "math/rand"
     "time"
-    "strconv"
+    //"strconv"
 
     "./player"
     "./world"
@@ -70,19 +70,21 @@ func main() {
     
     //config world and player here    
     for i:=1; i<=constants.MAX_MAPS; i++ {
-        floors[i-1] = world.NewMap(50, 30, i) //width, height, floor
+        floors[i-1] = world.NewMap(120, 60, i) //width, height, floor
     }
     worldmap = world.SetCurrentMap(floors[0])
-    p1 = player.NewPlayerXY(25, 15, 10, 10, rand.Intn(4)+4, rand.Intn(4)+4, rand.Intn(4)+4, rand.Intn(4)+4, player.CLASS_ENGINEER)			
+    p1 = player.NewPlayerXY(60, 30, 10, 10, rand.Intn(4)+4, rand.Intn(4)+4, rand.Intn(4)+4, rand.Intn(4)+4, player.CLASS_ENGINEER)			
 		
     //game turn loop
     for {
-        tick_count++       
-        
-        //per-turn logic and actions
-        worldmap.AdvanceTurn()
-        worldmap.RevealTilesAround(p1.X, p1.Y, p1.LightRadius)
-        
+        if worldmap.GameState==constants.STATE_NORMAL {
+			tick_count++       
+				
+  			//per-turn logic and actions
+			worldmap.AdvanceTurn(p1)
+			worldmap.RevealTilesAround(p1.X, p1.Y, p1.LightRadius)
+        }
+		
 		drawScreen()
         
 		//wait for input
@@ -122,11 +124,17 @@ func drawScreen() {
     switch worldmap.GameState {
         case constants.STATE_LOOK:
             pos := cur.GetMapXY(p1.X, p1.Y)
-            if pos[1]>=0 && pos[1]<worldmap.Height && pos[0]>=0 && pos[0]<worldmap.Width && worldmap.Tiles[pos[1]][pos[0]].Revealed && worldmap.Tiles[pos[1]][pos[0]].Item!=nil {
-                utils.SetMessage("You see: "+worldmap.Tiles[pos[1]][pos[0]].Item.Name)
+            if pos[1]>=0 && pos[1]<worldmap.Height && pos[0]>=0 && pos[0]<worldmap.Width && worldmap.Tiles[pos[1]][pos[0]].Revealed {
+                if worldmap.Tiles[pos[1]][pos[0]].Ai!=nil {
+					utils.SetMessage("You see: "+worldmap.Tiles[pos[1]][pos[0]].Ai.Name)
+				} else if worldmap.Tiles[pos[1]][pos[0]].Item!=nil {
+					utils.SetMessage("You see: "+worldmap.Tiles[pos[1]][pos[0]].Item.Name)
+				} else {
+					utils.SetMessage("")
+				}		
             } else {
-                utils.SetMessage("Cur: "+strconv.Itoa(pos[0])+", "+strconv.Itoa(pos[1]))
-            }
+				utils.SetMessage("")
+			}
             
         case constants.STATE_INVENTORY:
             p1.ListInventory("Use / equip which item?")
