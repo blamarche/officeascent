@@ -88,7 +88,7 @@ func (m *Map) StepAIAt(x, y int, p1 interfaces.IPlayer) {
 			m.Tiles[yy][xx].Ai = a
 			m.Tiles[y][x].Ai = nil
 		} else {
-			if a.Path!=nil {
+			if a.Path!=nil && x!=xx && y!=yy {
 				a.Path = nil
 				a.PathIndex = 0
 			}			

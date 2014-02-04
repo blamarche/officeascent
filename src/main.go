@@ -347,7 +347,7 @@ func showHelp() {
     fmt.Println("d - Drop item")
     fmt.Println("s, L - Look around")
     
-    fmt.Println("")
+    fmt.Println("Q - quit")
     fmt.Println("Press any key to continue...")
     getKeypress()
 }
