@@ -105,7 +105,7 @@ func drawScreen() {
     ansiterm.SetFGColor(7)
     ansiterm.SetBGColor(0)
 	ansiterm.SetColorBright()
-    ansiterm.ClearPage()       
+    //ansiterm.ClearPage()       
     
     ansiterm.MoveToXY(0, wy-1)
 	fmt.Printf("Turn: %d | HP: %d/%d | Amb/Chr/Spr/Grd: %d/%d/%d/%d", tick_count, p1.Hp, p1.Max_hp, p1.Ambition, p1.Charm, p1.Spirit, p1.Greed)
