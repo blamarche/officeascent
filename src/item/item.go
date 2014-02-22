@@ -15,6 +15,8 @@ const (
     KIND_WEAPON_BOTH = iota   
     KIND_WEAPON_PROMOTE
     KIND_WEAPON_DEMOTE
+	KIND_ARMOR_SUIT
+	KIND_ARMOR_TIE
     KIND_POTION
     KIND_COLLECTIBLE //non-functional paychecks, etc
 )
@@ -24,6 +26,8 @@ const (
 	SUBKIND_POTION_GOOD
 	SUBKIND_POTION_BAD
 	SUBKIND_WEAPON_RANGED
+	SUBKIND_ARMOR_PROMOTE
+	SUBKIND_ARMOR_DEMOTE
 )
 
 //Item struct
@@ -36,6 +40,7 @@ type Item struct {
 	Floor_max int
     Max_per_floor float32 //per 10000 squares (ie 100x100 room)
 	Fgcolor int
+	Power int
     Kind int //type of item (weapon, potion, collectible, etc)
 	Subkind int //subtype of item    
 }
@@ -52,6 +57,7 @@ var ItemList []Item = []Item{
 		20, //max floor
         15, //frequency
 		3, //fgcolor
+		2, //power
 		KIND_WEAPON_DEMOTE,
 		SUBKIND_NONE,
 	},
@@ -63,6 +69,7 @@ var ItemList []Item = []Item{
 		20, //max floor
         10, //frequency
 		6, //fgcolor
+		5, //power
 		KIND_POTION,
 		SUBKIND_POTION_GOOD,
 	},
@@ -74,6 +81,7 @@ var ItemList []Item = []Item{
 		4, //max floor
         50, //frequency
 		2, //fgcolor
+		1, //power
 		KIND_WEAPON_PROMOTE,
 		SUBKIND_WEAPON_RANGED,
 	},
@@ -85,8 +93,33 @@ var ItemList []Item = []Item{
 		999, //max floor
         6, //frequency
 		constants.COLOR_WALL, //fgcolor
+		0, //power
 		KIND_COLLECTIBLE,
 		SUBKIND_NONE,
+	},
+	Item{
+		"thrift store suit",
+		"wear a",
+		"r",
+		1, //min floor
+		999, //max floor
+        50, //frequency
+		3, //fgcolor
+		1, //power
+		KIND_ARMOR_SUIT,
+		SUBKIND_ARMOR_PROMOTE,
+	},
+	Item{
+		"coffee-stained tie",
+		"wear a",
+		"t",
+		1, //min floor
+		999, //max floor
+        50, //frequency
+		6, //fgcolor
+		1, //power
+		KIND_ARMOR_TIE,
+		SUBKIND_ARMOR_DEMOTE,
 	},
 }
 
@@ -102,6 +135,7 @@ func (i *Item) Clone() *Item {
         i.Floor_max ,
         i.Max_per_floor, 
         i.Fgcolor ,
+		i.Power,
         i.Kind ,
         i.Subkind,  
     }

@@ -47,6 +47,10 @@ type Player struct {
     Class int //classof player
     PlayerState int
     Inventory []*item.Item
+	EquippedArmorSuit int 
+	EquippedArmorTie int
+	EquippedWeaponClose int
+	EquippedWeaponRanged int
 }
 
 
@@ -71,6 +75,10 @@ func NewPlayerXY(x int, y int, hp int, max_hp int, amb int, charm int, spirit in
         class, 
         constants.PLAYERSTATE_NORMAL,
         make([]*item.Item, INVENTORY_MAX),
+		-1,
+		-1,
+		-1,
+		-1,
     }
     
     return &e
@@ -100,13 +108,57 @@ func (e *Player) StringToInvIndex(c string) int {
     return index 
 }
 
+func (e *Player) UnequipItem(index int) {
+	if index==e.EquippedArmorSuit {
+		e.EquippedArmorSuit = -1
+	}
+	if index==e.EquippedArmorTie {
+		e.EquippedArmorTie = -1
+	}
+	if index==e.EquippedWeaponClose {
+		e.EquippedWeaponClose = -1
+	}
+	if index==e.EquippedWeaponRanged {
+		e.EquippedWeaponRanged = -1
+	}
+}
+
 func (e *Player) RemoveInventoryItem(index int) *item.Item {
     if index<INVENTORY_MAX && index>=0 {
-        tmp := e.Inventory[index]
+        e.UnequipItem(index)
+		
+		tmp := e.Inventory[index]
         e.Inventory[index] = nil
         return tmp
     }
     return nil
+}
+
+func (e *Player) UseItem(index int) string {
+	//todo: potions 
+	
+	if index<0||index>=INVENTORY_MAX {
+		return "Invalid item selected"
+	}
+	
+	switch e.Inventory[index].Kind {
+		case item.KIND_WEAPON_BOTH, item.KIND_WEAPON_PROMOTE, item.KIND_WEAPON_DEMOTE:
+			if e.Inventory[index].Subkind == item.SUBKIND_WEAPON_RANGED {
+				e.EquippedWeaponRanged = index
+			} else {
+				e.EquippedWeaponClose = index
+			}
+			return "You equipped the weapon "+e.Inventory[index].Name
+			
+		case item.KIND_ARMOR_SUIT:
+			e.EquippedArmorSuit = index 
+			return "You equipped the "+e.Inventory[index].Name
+		
+		case item.KIND_ARMOR_TIE:
+			e.EquippedArmorTie = index 
+			return "You equipped the "+e.Inventory[index].Name
+	}
+	return "[NOT IMPLEMENTED]"
 }
 
 func (e *Player) ListInventory(mesg string) {
@@ -118,7 +170,11 @@ func (e *Player) ListInventory(mesg string) {
     for i:=0; i<INVENTORY_MAX/2; i++ {
         ansiterm.MoveToXY(2,i+5)
         if e.Inventory[i]!=nil {
-            fmt.Printf(" %s: %s", string(97+i), e.Inventory[i].Name)
+            if i==e.EquippedArmorSuit || i==e.EquippedArmorTie || i==e.EquippedWeaponClose || i==e.EquippedWeaponRanged {
+				fmt.Printf("*%s: %s", string(97+i), e.Inventory[i].Name)
+			} else {
+				fmt.Printf(" %s: %s", string(97+i), e.Inventory[i].Name)
+			}
         } else {
             fmt.Print("                           ")
         }
@@ -127,7 +183,11 @@ func (e *Player) ListInventory(mesg string) {
     for i:=INVENTORY_MAX/2; i<INVENTORY_MAX; i++ {
         ansiterm.MoveToXY(31,i+5-INVENTORY_MAX/2)
         if e.Inventory[i]!=nil {
-            fmt.Printf(" %s: %s", string(97+i), e.Inventory[i].Name)            
+            if i==e.EquippedArmorSuit || i==e.EquippedArmorTie || i==e.EquippedWeaponClose || i==e.EquippedWeaponRanged {
+				fmt.Printf("*%s: %s", string(97+i), e.Inventory[i].Name)
+			} else {
+				fmt.Printf(" %s: %s", string(97+i), e.Inventory[i].Name)
+			}
         } else {
             fmt.Print("                           ")
         }

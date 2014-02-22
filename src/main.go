@@ -3,8 +3,9 @@ package main
 /*
 TODO:
 
+Weapon/armor equip
 Enemies, Basic AI
-Player "attacks", weapon/armor equip
+Player "attacks"
 Using potions
 Item randomization (attributes & runes)
 Doors & keys
@@ -144,6 +145,8 @@ func drawScreen() {
 
     ansiterm.SetFGColor(7)
     ansiterm.MoveToXY(0,0)
+	fmt.Printf(utils.Space(wx-1))
+	ansiterm.MoveToXY(0,0)
     fmt.Printf("%s ", utils.GetMessage())    
 }
 
@@ -169,13 +172,19 @@ func doInput(input string) bool {
                 utils.SetMessage("You can't drop here!")
             }
             
-            worldmap.GameState = constants.STATE_NORMAL            
+            worldmap.GameState = constants.STATE_NORMAL  
+			ansiterm.ClearPage() 			
             return false
             
         } else if worldmap.GameState == constants.STATE_INVENTORY {            
-            //todo: use inventory            
-            worldmap.GameState = constants.STATE_NORMAL
             
+            worldmap.GameState = constants.STATE_NORMAL
+
+			ind := p1.StringToInvIndex(input)
+			utils.SetMessage(p1.UseItem(ind))
+			
+			ansiterm.ClearPage() 			
+			
             return false
             
         } else if worldmap.GameState == constants.STATE_LOOK {
@@ -218,7 +227,8 @@ func doInput(input string) bool {
                 //downstairs
                 case ">": 
                     if worldmap.DownXY[0]==p1.X && worldmap.DownXY[1]==p1.Y && worldmap.Tiles[worldmap.DownXY[1]][worldmap.DownXY[0]].DownStair {
-                        worldmap = world.SetCurrentMap(floors[worldmap.Floor])
+                        ansiterm.ClearPage()
+						worldmap = world.SetCurrentMap(floors[worldmap.Floor])
                         p1.SetXY(worldmap.UpXY[0], worldmap.UpXY[1])
                     } else {
                         utils.SetMessage("No up escalator here!")
@@ -226,7 +236,8 @@ func doInput(input string) bool {
                 //upstairs
                 case "<": 
                     if worldmap.UpXY[0]==p1.X && worldmap.UpXY[1]==p1.Y && worldmap.Tiles[worldmap.UpXY[1]][worldmap.UpXY[0]].UpStair {
-                        worldmap = world.SetCurrentMap(floors[worldmap.Floor-2])
+                        ansiterm.ClearPage()
+						worldmap = world.SetCurrentMap(floors[worldmap.Floor-2])
                         p1.SetXY(worldmap.DownXY[0], worldmap.DownXY[1])
                     } else {
                         utils.SetMessage("No down escalator here!")

@@ -41,3 +41,12 @@ func GetWinSize() []uint16 {
     syscall.Syscall(syscall.SYS_IOCTL, uintptr(0), uintptr(TIOCGWINSZ), uintptr(unsafe.Pointer(&ws)))
     return []uint16{ws.ws_row, ws.ws_col, ws.ws_xpixel, ws.ws_ypixel}
 } 
+
+func Space(num int) string {
+	s := ""
+	for i:=0; i<num; i++ {
+		s+=" "
+	}
+	return s
+}
+
